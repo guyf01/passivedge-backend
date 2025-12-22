@@ -14,17 +14,14 @@ from .base_cache import BaseCache
 class DynamoDBCache(BaseCache[StockAnalysis]):
     """
     DynamoDB implementation of cache for StockAnalysis.
-    
-    Table schema:
-        - symbol (String): Partition key
-        - date (String): Sort key, format: "{year}-{month:02d}"
-        - data (Map): StockAnalysis as dict
     """
 
     def __init__(
         self, 
         fetcher: Callable[[str, MonthDate], StockAnalysis],
-        table_name: str | None = None
+        table_name: str | None = None,
+        partition_key: str = 'symbol',
+        sort_key: str = 'date'
     ):
         """
         Initialize DynamoDB cache.
@@ -42,6 +39,8 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
             )
         
         self._table = boto3.resource('dynamodb').Table(self._table_name)
+        self._partition_key = partition_key
+        self._sort_key = sort_key
 
 
     def _get_from_cache(self, symbol: str, month: MonthDate) -> StockAnalysis | None:
@@ -49,8 +48,8 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
         try:
             response = self._table.get_item(
                 Key={
-                    'symbol': symbol,
-                    'date': str(month)
+                    self._partition_key: symbol,
+                    self._sort_key: str(month)
                 }
             )
             
@@ -58,7 +57,7 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
             if not item:
                 return None
             
-            return StockAnalysis.from_dict(item['data'])
+            return StockAnalysis.from_dict(item)
             
         except ClientError:
             return None
@@ -69,9 +68,9 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
         try:
             self._table.put_item(
                 Item={
-                    'symbol': symbol,
-                    'date': str(month),
-                    'data': stock_analysis.to_dict()
+                    self._partition_key: symbol,
+                    self._sort_key: str(month),
+                    **stock_analysis.to_dict()
                 }
             )
         except ClientError:
