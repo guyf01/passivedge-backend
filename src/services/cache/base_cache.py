@@ -1,9 +1,13 @@
 """Base cache class with cache-aside pattern."""
 
+import logging
 from abc import ABC, abstractmethod
 from typing import Callable, TypeVar, Generic
 
 from src.models.date import MonthDate
+
+
+logger = logging.getLogger(__name__)
 
 
 T = TypeVar('T')
@@ -41,9 +45,11 @@ class BaseCache(ABC, Generic[T]):
         # Try cache first
         cached = self._get_from_cache(symbol, month)
         if cached is not None:
+            logger.info(f"Cache [bold green]HIT[/]: '{symbol}' '{month}'")
             return cached
 
         # Cache miss - fetch and store
+        logger.info(f"Cache [bold yellow]MISS[/]: '{symbol}' '{month}'")
         data = self._fetcher(symbol, month)
         self._save_to_cache(symbol, month, data)
 
