@@ -16,8 +16,8 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
     DynamoDB implementation of cache for StockAnalysis.
     
     Table schema:
-        - pk (String): Partition key, format: "STOCK#{symbol}"
-        - sk (String): Sort key, format: "{year}-{month:02d}"
+        - symbol (String): Partition key
+        - date (String): Sort key, format: "{year}-{month:02d}"
         - data (Map): StockAnalysis as dict
     """
 
@@ -49,8 +49,8 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
         try:
             response = self._table.get_item(
                 Key={
-                    'pk': symbol,
-                    'sk': month.as_sk()
+                    'symbol': symbol,
+                    'date': str(month)
                 }
             )
             
@@ -69,8 +69,8 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
         try:
             self._table.put_item(
                 Item={
-                    'pk': symbol,
-                    'sk': month.as_sk(),
+                    'symbol': symbol,
+                    'date': str(month),
                     'data': stock_analysis.to_dict()
                 }
             )

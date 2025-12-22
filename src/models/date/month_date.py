@@ -65,11 +65,6 @@ class MonthDate:
     def as_date(self) -> datetime:
         """Convert to datetime object."""
         return datetime(self.year, self.month, 1)
-    
-
-    def as_sk(self) -> str:
-        """Convert to SK (sort key) string."""
-        return str(self)
 
 
     def to_dict(self) -> dict[str, Any]:
@@ -78,6 +73,15 @@ class MonthDate:
             "year": self.year,
             "month": self.month
         }
+    
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MonthDate:
+        """Convert from dictionary."""
+        return MonthDate(
+            year=int(data['year']),
+            month=int(data['month'])
+        )
 
 
     def __str__(self) -> str:
