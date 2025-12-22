@@ -2,9 +2,9 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Iterator
+from typing import Any
 
-from .exceptions import InvalidDateError, InvalidDateRangeError
+from .exceptions import InvalidDateError
 
 
 # Module-level constants for current date (set at import time)
@@ -28,11 +28,6 @@ class MonthDate:
 
 
     def __post_init__(self):
-        """Validate on creation."""
-        self._validate()
-
-
-    def _validate(self) -> None:
         """
         Validate that month/year are valid and in known history.
         
@@ -54,15 +49,6 @@ class MonthDate:
             )
 
 
-    def __str__(self) -> str:
-        """
-        Format as 'YYYY-MM'.
-        
-        :return: String representation in YYYY-MM format
-        """
-        return f"{self.year}-{self.month:02d}"
-
-
     def next_month(self) -> MonthDate:
         """
         Get the next month.
@@ -75,19 +61,14 @@ class MonthDate:
             return MonthDate(year=self.year, month=self.month + 1)
 
 
-    def generate_range_to(self, end: MonthDate) -> Iterator[MonthDate]:
-        """
-        Generate all months from self to end (inclusive).
-        
-        :param end: The end month
-        :return: Generator of MonthDate objects for each month in range
-        :raises InvalidDateRangeError: If end is before self
-        """
-        if self > end:
-            raise InvalidDateRangeError(f"End date {end} must be after or equal to start date {self}")
-        
-        current_date = self
-        
-        while current_date <= end:
-            yield current_date
-            current_date = current_date.next_month()
+    def as_date(self) -> datetime:
+        """Convert to datetime object."""
+        return datetime(self.year, self.month, 1)
+
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to JSON-serializable dictionary."""
+        return {
+            "year": self.year,
+            "month": self.month
+        }
