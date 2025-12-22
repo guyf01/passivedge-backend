@@ -50,7 +50,7 @@ class MonthPeriod:
             current = current.next_month()
 
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, str]:
         """Convert to JSON-serializable dictionary."""
         return {
             "start": self.start.to_dict(),
@@ -59,7 +59,7 @@ class MonthPeriod:
 
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> MonthPeriod:
+    def from_dict(cls, data: dict[str, str]) -> MonthPeriod:
         """Create a MonthPeriod from a dictionary."""
         return cls(
             start=MonthDate.from_dict(data["start"]),

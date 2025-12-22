@@ -22,7 +22,7 @@ class StockAnalysis:
     """
     symbol: str
     period: MonthPeriod
-    days: dict[int, DayScore] = field(default_factory=dict)
+    days: dict[str, DayScore] = field(default_factory=dict)
 
 
     def to_dict(self) -> dict[str, Any]:
@@ -30,7 +30,7 @@ class StockAnalysis:
         return {
             "symbol": self.symbol,
             "period": self.period.to_dict(),
-            "days": {str(k): v.to_dict() for k, v in self.days.items()}
+            "days": {k: v.to_dict() for k, v in self.days.items()}
         }
     
     @classmethod
@@ -39,5 +39,5 @@ class StockAnalysis:
         return cls(
             symbol=data["symbol"],
             period=MonthPeriod.from_dict(data["period"]),
-            days={int(k): DayScore.from_dict(v) for k, v in data["days"].items()}
+            days={k: DayScore.from_dict(v) for k, v in data["days"].items()}
         )

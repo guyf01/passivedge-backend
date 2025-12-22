@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
 
 from .exceptions import InvalidDateError
 
@@ -67,16 +66,16 @@ class MonthDate:
         return datetime(self.year, self.month, 1)
 
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, str]:
         """Convert to JSON-serializable dictionary."""
         return {
-            "year": self.year,
-            "month": self.month
+            "year": str(self.year),
+            "month": str(self.month)
         }
     
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> MonthDate:
+    def from_dict(cls, data: dict[str, str]) -> MonthDate:
         """Convert from dictionary."""
         return MonthDate(
             year=int(data['year']),
