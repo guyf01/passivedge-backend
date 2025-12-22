@@ -38,7 +38,7 @@ class MonthStockFetcher:
             symbol=symbol,
             period=MonthPeriod.single(month),
             days={
-                str(date.day): DayScore(day=str(date.day), avg_price_diff=round(apd, 2)) 
+                str(date.day): DayScore(avg_price_diff=round(apd, 2)) 
                 for date, apd in df['avg_price_diff'].items()
             }
         )
