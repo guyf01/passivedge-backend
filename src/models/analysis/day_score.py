@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any
 
 
@@ -49,16 +50,17 @@ class DayScore:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary."""
-        result = {"day": self.day}
+        result: dict[str, Any] = {"day": self.day}
         if self.avg_price_diff is not None:
-            result["avg_price_diff"] = self.avg_price_diff
+            result["avg_price_diff"] = Decimal(str(self.avg_price_diff))
         return result
     
     
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> DayScore:
         """Create a DayScore from a dictionary."""
+        avg = data.get("avg_price_diff")
         return cls(
-            day=data["day"],
-            avg_price_diff=data.get("avg_price_diff")
+            day=int(data["day"]),
+            avg_price_diff=float(avg) if avg is not None else None
         )
