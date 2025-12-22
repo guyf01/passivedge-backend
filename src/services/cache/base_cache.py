@@ -7,7 +7,7 @@ from typing import Callable, TypeVar, Generic
 from src.models.date import MonthDate
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cache')
 
 
 T = TypeVar('T')

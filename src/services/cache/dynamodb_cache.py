@@ -11,7 +11,7 @@ from src.models.analysis import StockAnalysis
 from .base_cache import BaseCache
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cache.dynamodb')
 
 
 class DynamoDBCache(BaseCache[StockAnalysis]):

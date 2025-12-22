@@ -9,7 +9,7 @@ from src.models.analysis import DayScore, StockAnalysis
 from src.services.stock_fetcher.exceptions import NoDataForMonthError
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('fetcher')
 
 
 class MonthStockFetcher:
