@@ -1,4 +1,5 @@
 """Month period model for date ranges."""
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterator, Any

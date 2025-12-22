@@ -1,4 +1,5 @@
 """MonthDate dataclass for handling month/year with validation."""
+from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -42,7 +43,7 @@ class MonthDate:
             raise InvalidDateError(f"Invalid year: {self.year}. Must be {CURRENT_YEAR} or earlier.")
         
         # Validate it's a completed past month (known history)
-        if (self.year, self.month) >= (CURRENT_YEAR, CURRENT_MONTH):
+        if (self.year, self.month) > (CURRENT_YEAR, CURRENT_MONTH):
             raise InvalidDateError(
                 f"Month {self.year}-{self.month:02d} is not history. "
                 f"Must be before {CURRENT_YEAR}-{CURRENT_MONTH:02d}."
