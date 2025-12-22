@@ -49,7 +49,16 @@ class DayScore:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary."""
-        return {
-            "day": self.day,
-            "avg_price_diff": self.avg_price_diff
-        }
+        result = {"day": self.day}
+        if self.avg_price_diff is not None:
+            result["avg_price_diff"] = self.avg_price_diff
+        return result
+    
+    
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> DayScore:
+        """Create a DayScore from a dictionary."""
+        return cls(
+            day=data["day"],
+            avg_price_diff=data.get("avg_price_diff")
+        )

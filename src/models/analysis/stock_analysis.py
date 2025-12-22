@@ -1,4 +1,5 @@
 """Stock analysis result data."""
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -29,5 +30,14 @@ class StockAnalysis:
         return {
             "symbol": self.symbol,
             "period": self.period.to_dict(),
-            "days": {k: v.to_dict() for k, v in self.days.items()}
+            "days": {str(k): v.to_dict() for k, v in self.days.items()}
         }
+    
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> StockAnalysis:
+        """Create a StockAnalysis from a dictionary."""
+        return cls(
+            symbol=data["symbol"],
+            period=MonthPeriod.from_dict(data["period"]),
+            days={int(k): DayScore.from_dict(v) for k, v in data["days"].items()}
+        )

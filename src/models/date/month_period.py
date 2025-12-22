@@ -56,3 +56,12 @@ class MonthPeriod:
             "start": self.start.to_dict(),
             "end": self.end.to_dict()
         }
+
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MonthPeriod:
+        """Create a MonthPeriod from a dictionary."""
+        return cls(
+            start=MonthDate.from_dict(data["start"]),
+            end=MonthDate.from_dict(data["end"])
+        )
