@@ -1,6 +1,6 @@
 """DynamoDB cache implementation."""
 
-import os
+import os, logging
 from typing import Callable
 
 import boto3
@@ -9,6 +9,9 @@ from botocore.exceptions import ClientError
 from src.models.date import MonthDate
 from src.models.analysis import StockAnalysis
 from .base_cache import BaseCache
+
+
+logger = logging.getLogger('cache.dynamodb')
 
 
 class DynamoDBCache(BaseCache[StockAnalysis]):
@@ -60,6 +63,7 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
             return StockAnalysis.from_dict(item)
             
         except ClientError as e:
+            logger.error(f"Cache READ error for '{symbol}' '{month}': {e}")
             return None
 
 
@@ -74,4 +78,4 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
                 }
             )
         except ClientError as e:
-            pass  # Silently fail on cache write errors
+            logger.error(f"Cache WRITE error for '{symbol}' '{month}': {e}")
