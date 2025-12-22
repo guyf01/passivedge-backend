@@ -1,10 +1,15 @@
 """Stock data fetcher service using Yahoo Finance."""
 
+import logging
+
 import yfinance as yf
 
 from src.models.date import MonthDate, MonthPeriod
 from src.models.analysis import DayScore, StockAnalysis
 from src.services.stock_fetcher.exceptions import NoDataForMonthError
+
+
+logger = logging.getLogger(__name__)
 
 
 class MonthStockFetcher:
@@ -23,16 +28,21 @@ class MonthStockFetcher:
         :return: StockAnalysis with daily scores
         :raises NoDataForMonthError: If no data available for the month
         """
+        logger.info(f"Fetching data for '{symbol}' '{month}'")
+        
         df = yf.Ticker(symbol).history(
             start=month.as_date(),
             end=month.next_month().as_date()
         )
 
         if df.empty:
+            logger.warning(f"No data found for '{symbol}' '{month}'")
             raise NoDataForMonthError(f"No data found for {symbol} in {month}")
         
         month_avg = df['Close'].mean()
         df['avg_price_diff'] = (df['Close'] / month_avg - 1) * 100
+        
+        logger.info(f"Fetched {len(df)} trading days for '{symbol}' '{month}'")
         
         return StockAnalysis(
             symbol=symbol,
