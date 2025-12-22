@@ -59,7 +59,7 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
             
             return StockAnalysis.from_dict(item)
             
-        except ClientError:
+        except ClientError as e:
             return None
 
 
@@ -73,5 +73,5 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
                     **stock_analysis.to_dict()
                 }
             )
-        except ClientError:
+        except ClientError as e:
             pass  # Silently fail on cache write errors
