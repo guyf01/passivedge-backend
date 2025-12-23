@@ -1,7 +1,6 @@
 """DynamoDB cache implementation."""
 
-import os, logging
-from typing import Callable
+import logging
 
 import boto3
 from botocore.exceptions import ClientError
@@ -14,14 +13,13 @@ from .base_cache import BaseCache
 logger = logging.getLogger('cache.dynamodb')
 
 
-class DynamoDBCache(BaseCache[StockAnalysis]):
+class DynamoDBCache(BaseCache):
     """
     DynamoDB implementation of cache for StockAnalysis.
     """
 
     def __init__(
         self, 
-        fetcher: Callable[[str, MonthDate], StockAnalysis],
         table_name: str,
         partition_key: str = 'symbol',
         sort_key: str = 'date'
@@ -29,20 +27,23 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
         """
         Initialize DynamoDB cache.
         
-        :param fetcher: Function to call on cache miss
-        :param table_name: DynamoDB table name (defaults to DYNAMODB_TABLE_NAME env var)
+        :param table_name: DynamoDB table name
         """
-        super().__init__(fetcher)
-        
-        self._table_name = table_name
+        super().__init__()
 
-        self._table = boto3.resource('dynamodb').Table(self._table_name)
+        self._table = boto3.resource('dynamodb').Table(table_name)
         self._partition_key = partition_key
         self._sort_key = sort_key
 
 
     def _get_from_cache(self, symbol: str, month: MonthDate) -> StockAnalysis | None:
-        """Get StockAnalysis from DynamoDB."""
+        """
+        Get StockAnalysis from DynamoDB.
+
+        :param symbol: Stock symbol
+        :param month: MonthDate object
+        :return: StockAnalysis object or if not found None
+        """
         try:
             response = self._table.get_item(
                 Key={
@@ -62,8 +63,14 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
             return None
 
 
-    def _save_to_cache(self, symbol: str, month: MonthDate, stock_analysis: StockAnalysis) -> None:
-        """Save StockAnalysis to DynamoDB."""
+    def _save_to_cache(self, symbol: str, month: MonthDate, stock_analysis: StockAnalysis):
+        """
+        Save StockAnalysis to DynamoDB.
+
+        :param symbol: Stock symbol
+        :param month: MonthDate object
+        :param stock_analysis: StockAnalysis object
+        """
         try:
             self._table.put_item(
                 Item={

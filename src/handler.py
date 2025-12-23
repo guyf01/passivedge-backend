@@ -60,8 +60,11 @@ def handler(event: dict, context: Any) -> dict:
             return ApiError.SYMBOL_NOT_FOUND.response(f"Symbol does not exist: {params['symbol']}")
 
         # Aggregate data
-        cache = DynamoDBCache(fetcher=fetcher.fetch, table_name=os.environ['DYNAMODB_TABLE_NAME'])
-        aggregator = StockAggregator(fetcher=cache.get)
+        aggregator = StockAggregator(
+            fetcher=DynamoDBCache(
+                table_name=os.environ['DYNAMODB_TABLE_NAME']
+            )(fetcher.fetch)
+        )
         try:
             logger.info(f"Analyzing '{params['symbol']}' over {period}")
             result = aggregator.aggregate(params['symbol'], period)
