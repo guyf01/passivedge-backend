@@ -25,46 +25,50 @@ def handler(event: dict, context: Any) -> dict:
     """
     logger.info("Handler called")
 
-    logger.info(f"Event: {event}")
-    params = event.get('queryStringParameters') or {}
-
-    required_params = {'symbol', 'start', 'end'}
-    if not required_params.issubset(params):
-        missing_params = required_params.difference(params)
-        logger.error(f"Missing required parameters: {missing_params}")
-        return ApiError.MISSING_PARAM.response(
-            f"Missing required parameters: {missing_params}"
-        )
-
-    # Parse dates
     try:
-        start_date = MonthDate.from_str(params['start'])
-        end_date = MonthDate.from_str(params['end'])
-    except MonthDateError as e:
-        logger.error(f"Invalid date: {e}")
-        return ApiError.INVALID_DATE.response(str(e))
+        logger.info(f"Event: {event}")
+        params = event.get('queryStringParameters') or {}
 
-    # Create period
-    try:
-        period = MonthPeriod(start_date, end_date)
-    except InvalidDateRangeError as e:
-        logger.error(f"Invalid date range: {e}")
-        return ApiError.INVALID_RANGE.response(str(e))
+        required_params = {'symbol', 'start', 'end'}
+        if not required_params.issubset(params):
+            missing_params = required_params.difference(params)
+            logger.error(f"Missing required parameters: {missing_params}")
+            return ApiError.MISSING_PARAM.response(
+                f"Missing required parameters: {missing_params}"
+            )
 
-    # Check if stock exists
-    fetcher = MonthStockFetcher()
-    if not fetcher.exists(params['symbol']):
-        logger.error(f"Not data for symbol: {params['symbol']}")
-        return ApiError.NO_DATA.response(f"Not data for symbol: {params['symbol']}")
+        # Parse dates
+        try:
+            start_date = MonthDate.from_str(params['start'])
+            end_date = MonthDate.from_str(params['end'])
+        except MonthDateError as e:
+            logger.error(f"Invalid date: {e}")
+            return ApiError.INVALID_DATE.response(str(e))
 
-    # Aggregate data
-    cache = DynamoDBCache(fetcher=fetcher.fetch, table_name=os.environ['DYNAMODB_TABLE_NAME'])
-    aggregator = StockAggregator(fetcher=cache.get)
-    try:
-        logger.info(f"Analyzing '{params['symbol']}' over {period}")
-        result = aggregator.aggregate(params['symbol'], period)
-    except NoDataForMonthError as e:
-        return ApiError.NO_DATA.response(str(e))
+        # Create period
+        try:
+            period = MonthPeriod(start_date, end_date)
+        except InvalidDateRangeError as e:
+            logger.error(f"Invalid date range: {e}")
+            return ApiError.INVALID_RANGE.response(str(e))
+
+        # Check if stock exists
+        fetcher = MonthStockFetcher()
+        params['symbol'] = params['symbol'].upper()
+        if not fetcher.exists(params['symbol']):
+            logger.error(f"Symbol does not exist: {params['symbol']}")
+            return ApiError.SYMBOL_NOT_FOUND.response(f"Symbol does not exist: {params['symbol']}")
+
+        # Aggregate data
+        cache = DynamoDBCache(fetcher=fetcher.fetch, table_name=os.environ['DYNAMODB_TABLE_NAME'])
+        aggregator = StockAggregator(fetcher=cache.get)
+        try:
+            logger.info(f"Analyzing '{params['symbol']}' over {period}")
+            result = aggregator.aggregate(params['symbol'], period)
+        except NoDataForMonthError as e:
+            logger.error(f"No data for symbol: {e}")
+            return ApiError.NO_DATA.response(str(e))
+
     except Exception as e:
         logger.exception(f"Unexpected error: {e}")
         return ApiError.SERVER_ERROR.response(str(e))

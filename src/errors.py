@@ -8,17 +8,19 @@ class ApiError(Enum):
     """
     API error types with HTTP status and title.
     """
-    # Validation errors (400)
-    MISSING_PARAM = (400, "missing_parameter", "Missing Required Parameter")
-    INVALID_FORMAT = (400, "invalid_format", "Invalid Format")
-    INVALID_DATE = (400, "invalid_date", "Invalid Date")
-    INVALID_RANGE = (400, "invalid_range", "Invalid Date Range")
     
-    # Not found (404)
-    NO_DATA = (404, "no_data", "No Data Found")
-    
-    # Server errors (500)
-    CONFIG_ERROR = (500, "configuration_error", "Configuration Error")
+    # --- validation_error (400) ---
+    MISSING_PARAM = (400, "validation_error", "Missing Required Parameter")
+    INVALID_FORMAT = (400, "validation_error", "Invalid Format")
+    INVALID_DATE = (400, "validation_error", "Invalid Date")
+    INVALID_RANGE = (400, "validation_error", "Invalid Date Range")
+
+    # --- not_found (404) ---
+    SYMBOL_NOT_FOUND = (404, "not_found", "Symbol Not Found")
+    NO_DATA = (404, "not_found", "No Data Found")
+
+    # --- server_error (500) ---
+    CONFIG_ERROR = (500, "server_error", "Configuration Error")
     SERVER_ERROR = (500, "server_error", "Internal Server Error")
 
 
