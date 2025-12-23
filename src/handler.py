@@ -42,14 +42,14 @@ def handler(event: dict, context: Any) -> dict:
         end_date = MonthDate.from_str(params['end'])
     except MonthDateError as e:
         logger.error(f"Invalid date: {e}")
-        return ApiError.INVALID_DATE.response(f"Invalid date {e.message}")
+        return ApiError.INVALID_DATE.response(str(e))
 
     # Create period
     try:
         period = MonthPeriod(start_date, end_date)
     except InvalidDateRangeError as e:
         logger.error(f"Invalid date range: {e}")
-        return ApiError.INVALID_RANGE.response(f"Invalid date range {e.message}")
+        return ApiError.INVALID_RANGE.response(str(e))
 
     # Check if stock exists
     fetcher = MonthStockFetcher()
@@ -64,10 +64,10 @@ def handler(event: dict, context: Any) -> dict:
         logger.info(f"Analyzing '{params['symbol']}' over {period}")
         result = aggregator.aggregate(params['symbol'], period)
     except NoDataForMonthError as e:
-        return ApiError.NO_DATA.response(e.message)
+        return ApiError.NO_DATA.response(str(e))
     except Exception as e:
         logger.exception(f"Unexpected error: {e}")
-        return ApiError.SERVER_ERROR.response(e.message)
+        return ApiError.SERVER_ERROR.response(str(e))
 
     return {
         'statusCode': 200,
