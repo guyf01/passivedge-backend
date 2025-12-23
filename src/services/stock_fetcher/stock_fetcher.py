@@ -31,8 +31,8 @@ class MonthStockFetcher:
         logger.info(f"Fetching data for '{symbol}' '{month}'")
         
         df = yf.Ticker(symbol).history(
-            start=month.as_date(),
-            end=month.next_month().as_date()
+            start=month.to_datetime(),
+            end=month.next_month().to_datetime()
         )
 
         if df.empty:

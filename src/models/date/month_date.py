@@ -44,8 +44,7 @@ class MonthDate:
         # Validate it's a completed past month (known history)
         if (self.year, self.month) > (CURRENT_YEAR, CURRENT_MONTH):
             raise InvalidDateError(
-                f"Month {self.year}-{self.month:02d} is not history. "
-                f"Must be before {CURRENT_YEAR}-{CURRENT_MONTH:02d}."
+                f"Month {self} is not history. Must be before {CURRENT_YEAR}-{CURRENT_MONTH:02d}."
             )
 
 
@@ -61,7 +60,7 @@ class MonthDate:
             return MonthDate(year=self.year, month=self.month + 1)
 
 
-    def as_date(self) -> datetime:
+    def to_datetime(self) -> datetime:
         """Convert to datetime object."""
         return datetime(self.year, self.month, 1)
 
@@ -74,13 +73,18 @@ class MonthDate:
         }
 
 
-    @classmethod
-    def from_dict(cls, data: dict[str, str]) -> MonthDate:
+    @staticmethod
+    def from_dict(data: dict[str, str]) -> MonthDate:
         """Convert from dictionary."""
-        return MonthDate(
-            year=int(data['year']),
-            month=int(data['month'])
-        )
+        try:
+            year = int(data['year'])
+            month = int(data['month'])
+        except KeyError as e:
+            raise InvalidDateError(f"Missing key: {e}")
+        except ValueError as e:
+            raise InvalidDateError(f"Invalid value: {e}")
+
+        return MonthDate(year=year, month=month)
 
 
     def __str__(self) -> str:
@@ -88,10 +92,12 @@ class MonthDate:
         return f"{self.year}-{self.month:02d}"
 
 
-    @classmethod
-    def from_str(cls, date_str: str) -> MonthDate:
+    @staticmethod
+    def from_str(date_str: str) -> MonthDate:
         """Convert from string in format 'YYYY-MM'."""
-        return MonthDate(
-            year=int(date_str.split('-')[0]),
-            month=int(date_str.split('-')[1])
-        )
+        try:
+            year, month = map(int, date_str.split('-'))
+        except ValueError as e:
+            raise InvalidDateError(f"Invalid date string: {date_str}")
+
+        return MonthDate(year=year, month=month)
