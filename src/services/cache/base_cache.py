@@ -2,62 +2,43 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable, TypeVar, Generic
+from functools import wraps
+from typing import Callable
 
 from src.models.date import MonthDate
+from src.models.analysis import StockAnalysis
 
 
 logger = logging.getLogger('cache')
 
 
-T = TypeVar('T')
-
-
-class BaseCache(ABC, Generic[T]):
+class BaseCache(ABC):
     """
     Abstract cache with cache-aside pattern.
-    
-    Exposes a single get() method that handles cache hit/miss internally.
-    On cache miss, calls the provided fetcher function and stores the result.
-    
-    :param fetcher: Callable that fetches data on cache miss
     """
-    
-    def __init__(self, fetcher: Callable[[str, MonthDate], T]):
+    def __call__(self, func: Callable[[str, MonthDate], StockAnalysis]) -> Callable[[str, MonthDate], StockAnalysis]:
         """
-        Initialize cache with a data fetcher.
-        
-        :param fetcher: Function to call on cache miss (symbol, month) -> T
+        Decorator that adds caching to a function.
         """
-        self._fetcher = fetcher
+        @wraps(func)
+        def wrapper(symbol: str, month: MonthDate) -> StockAnalysis:
+            # Try cache first
+            cached = self._get_from_cache(symbol, month)
+            if cached is not None:
+                logger.info(f"Cache [bold green]HIT[/]: '{symbol}' '{month}'")
+                return cached
 
+            # Cache miss - fetch and store
+            logger.info(f"Cache [bold yellow]MISS[/]: '{symbol}' '{month}'")
+            data = func(symbol, month)
+            self._save_to_cache(symbol, month, data)
+            return data
 
-    def get(self, symbol: str, month: MonthDate) -> T:
-        """
-        Get data for a symbol and month.
-        
-        Checks cache first, fetches and caches on miss.
-        
-        :param symbol: Stock ticker symbol
-        :param month: The month to get data for
-        :return: Cached or freshly fetched data
-        """
-        # Try cache first
-        cached = self._get_from_cache(symbol, month)
-        if cached is not None:
-            logger.info(f"Cache [bold green]HIT[/]: '{symbol}' '{month}'")
-            return cached
-
-        # Cache miss - fetch and store
-        logger.info(f"Cache [bold yellow]MISS[/]: '{symbol}' '{month}'")
-        data = self._fetcher(symbol, month)
-        self._save_to_cache(symbol, month, data)
-
-        return data
+        return wrapper
 
 
     @abstractmethod
-    def _get_from_cache(self, symbol: str, month: MonthDate) -> T | None:
+    def _get_from_cache(self, symbol: str, month: MonthDate) -> StockAnalysis | None:
         """
         Get data from cache.
         
@@ -69,7 +50,7 @@ class BaseCache(ABC, Generic[T]):
 
 
     @abstractmethod
-    def _save_to_cache(self, symbol: str, month: MonthDate, data: T) -> None:
+    def _save_to_cache(self, symbol: str, month: MonthDate, data: StockAnalysis):
         """
         Save data to cache.
         
