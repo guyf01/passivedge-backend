@@ -72,7 +72,7 @@ class MonthDate:
             "year": str(self.year),
             "month": str(self.month)
         }
-    
+
 
     @classmethod
     def from_dict(cls, data: dict[str, str]) -> MonthDate:
@@ -86,3 +86,12 @@ class MonthDate:
     def __str__(self) -> str:
         """Convert to string in format 'YYYY-MM'."""
         return f"{self.year}-{self.month:02d}"
+
+
+    @classmethod
+    def from_str(cls, date_str: str) -> MonthDate:
+        """Convert from string in format 'YYYY-MM'."""
+        return MonthDate(
+            year=int(date_str.split('-')[0]),
+            month=int(date_str.split('-')[1])
+        )

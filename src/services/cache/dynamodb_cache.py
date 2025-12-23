@@ -22,7 +22,7 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
     def __init__(
         self, 
         fetcher: Callable[[str, MonthDate], StockAnalysis],
-        table_name: str | None = None,
+        table_name: str,
         partition_key: str = 'symbol',
         sort_key: str = 'date'
     ):
@@ -34,13 +34,8 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
         """
         super().__init__(fetcher)
         
-        self._table_name = table_name or os.environ.get('DYNAMODB_TABLE_NAME')
-        if not self._table_name:
-            raise ValueError(
-                "DynamoDB table name required. "
-                "Set DYNAMODB_TABLE_NAME env var or pass table_name."
-            )
-        
+        self._table_name = table_name
+
         self._table = boto3.resource('dynamodb').Table(self._table_name)
         self._partition_key = partition_key
         self._sort_key = sort_key
