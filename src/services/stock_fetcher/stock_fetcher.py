@@ -18,6 +18,18 @@ class MonthStockFetcher:
     
     Calculates avg_price_diff = ((day_close - month_avg) / month_avg) * 100
     """
+    @staticmethod
+    def exists(symbol: str) -> bool:
+        """
+        Check if a stock symbol exists.
+        
+        :param symbol: Stock ticker symbol (e.g., 'AAPL')
+        :return: True if stock exists, False otherwise
+        """
+        ticker = yf.Ticker(symbol)
+        # Check if ticker has valid info (fast check)
+        return ticker.info.get('regularMarketPrice') is not None
+
 
     def fetch(self, symbol: str, month: MonthDate) -> StockAnalysis:
         """
@@ -31,8 +43,8 @@ class MonthStockFetcher:
         logger.info(f"Fetching data for '{symbol}' '{month}'")
         
         df = yf.Ticker(symbol).history(
-            start=month.as_date(),
-            end=month.next_month().as_date()
+            start=month.to_datetime(),
+            end=month.next_month().to_datetime()
         )
 
         if df.empty:
