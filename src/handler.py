@@ -54,8 +54,8 @@ def handler(event: dict, context: Any) -> dict:
     # Check if stock exists
     fetcher = MonthStockFetcher()
     if not fetcher.exists(params['symbol']):
-        logger.error(f"Stock '{params['symbol']}' does not exist")
-        return ApiError.NO_DATA.response(f"Stock {params['symbol']} does not exist")
+        logger.error(f"Not data for symbol: {params['symbol']}")
+        return ApiError.NO_DATA.response(f"Not data for symbol: {params['symbol']}")
 
     # Aggregate data
     cache = DynamoDBCache(fetcher=fetcher.fetch, table_name=os.environ['DYNAMODB_TABLE_NAME'])
