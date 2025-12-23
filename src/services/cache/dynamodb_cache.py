@@ -77,5 +77,6 @@ class DynamoDBCache(BaseCache[StockAnalysis]):
                     **stock_analysis.to_dict()
                 }
             )
+            logger.info(f"Cache WRITE for '{symbol}' '{month}'")
         except ClientError as e:
             logger.error(f"Cache WRITE error for '{symbol}' '{month}': {e}")
