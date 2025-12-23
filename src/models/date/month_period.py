@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator, Any
+from typing import Iterator
 
 from .month_date import MonthDate
-from .exceptions import InvalidDateRangeError
+from .exceptions import InvalidDateRangeError, InvalidDateError
 
 
 @dataclass(frozen=True)
@@ -28,6 +28,14 @@ class MonthPeriod:
         if self.start > self.end:
             raise InvalidDateRangeError(
                 f"End date {self.end} must be after or equal to start date {self.start}"
+            )
+        
+        # Ensure end month has a next month
+        try:
+            self.end.next_month()
+        except InvalidDateError:
+            raise InvalidDateRangeError(
+                f"End date {self.end} month cannot be current month"
             )
 
 

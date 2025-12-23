@@ -1,6 +1,7 @@
 """Stock analysis result data."""
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -32,7 +33,8 @@ class StockAnalysis:
             "period": self.period.to_dict(),
             "days": {k: v.to_dict() for k, v in self.days.items()}
         }
-    
+
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> StockAnalysis:
         """Create a StockAnalysis from a dictionary."""
@@ -41,3 +43,8 @@ class StockAnalysis:
             period=MonthPeriod.from_dict(data["period"]),
             days={k: DayScore.from_dict(v) for k, v in data["days"].items()}
         )
+
+
+    def __str__(self) -> str:
+        """Return string representation of the StockAnalysis."""
+        return json.dumps(self.to_dict(), indent=4)
