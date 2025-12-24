@@ -12,13 +12,15 @@ class WorkloadApp():
     
 
     def create_stack(self):
-        from infra.resources import StockCacheTable, StockAnalyzerFunction
+        from infra.resources import StockCacheTable, StockAnalyzerFunction, StockAnalyzerApi
 
         self.stack = Stack(self.app, "PassivEdgeStack") 
 
         self.stock_cache_table = StockCacheTable(self.stack, "StockCacheTable")
 
-        self.stock_analysis_function = StockAnalyzerFunction(self.stack, "StockAnalyzerFunction")   
+        self.stock_analysis_function = StockAnalyzerFunction(self.stack, "StockAnalyzerFunction")
+
+        self.stock_analyzer_api = StockAnalyzerApi(self.stack, "StockAnalyzerApi")
 
 
     def synth(self):
