@@ -29,6 +29,8 @@ def _setup_logger() -> logging.Logger:
         handler.setFormatter(logging.Formatter('%(name)s: %(message)s'))
 
     logger.addHandler(handler)
+
+    # Prevent propagation to root logger (avoids duplicate logs)
     logger.propagate = False
 
     return logger
