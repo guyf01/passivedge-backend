@@ -1,5 +1,6 @@
 # Ignore CDK output
 **/cdk.out
+**/cdk.context.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

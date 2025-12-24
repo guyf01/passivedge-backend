@@ -30,7 +30,7 @@ class StockAnalyzerApi(Construct):
             cloud_watch_role_removal_policy=RemovalPolicy.DESTROY,
             default_cors_preflight_options={
                 "allow_origins": Cors.ALL_ORIGINS,
-                "allow_methods": ["GET", "OPTIONS"],
+                "allow_methods": ["POST", "OPTIONS"],
                 "allow_headers": ["Content-Type"],
             },
         )
@@ -45,6 +45,6 @@ class StockAnalyzerApi(Construct):
         # /analyze endpoint
         analyze = self.api.root.add_resource("analyze")
         analyze.add_method(
-            "GET",
+            "POST",
             LambdaIntegration(workload_app.stock_analysis_function.function, proxy=True),
         )

@@ -73,3 +73,8 @@ class MonthPeriod:
             start=MonthDate.from_dict(data["start"]),
             end=MonthDate.from_dict(data["end"])
         )
+
+
+    def __str__(self) -> str:
+        """Return string representation of the period."""
+        return f"{self.start} - {self.end}"
