@@ -1,16 +1,15 @@
 """DynamoDB cache implementation."""
 
-import logging
-
 import boto3
 from botocore.exceptions import ClientError
 
 from src.models.date import MonthDate
 from src.models.analysis import StockAnalysis
-from .base_cache import BaseCache
+from .base_cache import BaseCache, logger
+from src import get_logger
 
 
-logger = logging.getLogger('cache.dynamodb')
+logger = get_logger('dynamodb', logger)
 
 
 class DynamoDBCache(BaseCache):

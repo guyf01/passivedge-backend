@@ -1,6 +1,6 @@
 """AWS Lambda handler for stock analysis API."""
 
-import json, os, logging
+import json, os
 from typing import Any
 
 from src.models.date import MonthDate, MonthPeriod
@@ -9,9 +9,10 @@ from src.services.stock_fetcher import MonthStockFetcher, NoDataForMonthError
 from src.services.cache import DynamoDBCache
 from src.services.aggregator import StockAggregator
 from src.errors import ApiError
+from src import get_logger
 
 
-logger = logging.getLogger('handler')
+logger = get_logger('handler')
 
 
 def handler(event: dict, context: Any) -> dict:
