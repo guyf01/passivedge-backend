@@ -6,9 +6,11 @@ from constructs import Construct
 
 
 class StockCacheTable(Construct):
-    """DynamoDB table for caching stock analysis data."""
+    """
+    DynamoDB table for caching stock analysis data.
+    """
 
-    def __init__(self, scope: Construct, id: str) -> None:
+    def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
         self.table = Table(
