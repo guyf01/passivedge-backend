@@ -1,14 +1,14 @@
 """Stock aggregator service for multi-month analysis."""
 
-import logging
 from collections import defaultdict
 from typing import Callable
 
 from src.models.date import MonthDate, MonthPeriod
 from src.models.analysis import DayScore, StockAnalysis
+from src import get_logger
 
 
-logger = logging.getLogger('aggregator')
+logger = get_logger('aggregator')
 
 
 class StockAggregator:

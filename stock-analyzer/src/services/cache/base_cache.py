@@ -1,15 +1,15 @@
 """Base cache class with cache-aside pattern."""
 
-import logging
 from abc import ABC, abstractmethod
 from functools import wraps
 from typing import Callable
 
 from src.models.date import MonthDate
 from src.models.analysis import StockAnalysis
+from src import get_logger
 
 
-logger = logging.getLogger('cache')
+logger = get_logger('cache')
 
 
 class BaseCache(ABC):

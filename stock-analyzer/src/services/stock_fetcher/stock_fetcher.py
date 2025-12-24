@@ -1,15 +1,14 @@
 """Stock data fetcher service using Yahoo Finance."""
 
-import logging
-
 import yfinance as yf
 
 from src.models.date import MonthDate, MonthPeriod
 from src.models.analysis import DayScore, StockAnalysis
 from src.services.stock_fetcher.exceptions import NoDataForMonthError
+from src import get_logger
 
 
-logger = logging.getLogger('fetcher')
+logger = get_logger('fetcher')
 
 
 class MonthStockFetcher:
