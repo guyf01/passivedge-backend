@@ -10,7 +10,8 @@ class ApiError(Enum):
     """
     
     # --- validation_error (400) ---
-    MISSING_PARAM = (400, "validation_error", "Missing Required Parameter")
+    MISSING_BODY = (400, "validation_error", "Missing Request Body")
+    INVALID_BODY = (400, "validation_error", "Invalid Request Body")
     INVALID_FORMAT = (400, "validation_error", "Invalid Format")
     INVALID_DATE = (400, "validation_error", "Invalid Date")
     INVALID_RANGE = (400, "validation_error", "Invalid Date Range")
