@@ -7,7 +7,7 @@ from constructs import Construct
 from infra.app import workload_app
 
 
-class StockAnalysisFunction(Construct):
+class StockAnalyzerFunction(Construct):
     """
     Lambda function for stock analysis (Docker-based).
     """
@@ -16,9 +16,9 @@ class StockAnalysisFunction(Construct):
         super().__init__(scope, id)
 
         self.function = DockerImageFunction(
-            self, "StockAnalysisFunction",
-            function_name="stock-analysis",
-            code=DockerImageCode.from_image_asset(directory="..", asset_name="stock-analysis"),
+            self, "StockAnalyzerFunction",
+            function_name="stock-analyzer",
+            code=DockerImageCode.from_image_asset(directory="../stock-analyzer", asset_name="stock-analyzer", display_name="stock-analyzer"),
             memory_size=512,
             timeout=Duration.seconds(30),
             environment={
