@@ -27,7 +27,6 @@ def handler(event: dict, context: Any) -> dict:
     logger.info("Handler called")
 
     try:
-        logger.info(f"Event: {event}")
         params = event.get('queryStringParameters') or {}
 
         required_params = {'symbol', 'start', 'end'}
