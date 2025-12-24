@@ -25,11 +25,11 @@ class BaseCache(ABC):
             # Try cache first
             cached = self._get_from_cache(symbol, month)
             if cached is not None:
-                logger.info(f"Cache [bold green]HIT[/]: '{symbol}' '{month}'")
+                logger.info(f"Cache HIT: '{symbol}' '{month}'")
                 return cached
 
             # Cache miss - fetch and store
-            logger.info(f"Cache [bold yellow]MISS[/]: '{symbol}' '{month}'")
+            logger.info(f"Cache MISS: '{symbol}' '{month}'")
             data = func(symbol, month)
             self._save_to_cache(symbol, month, data)
             return data
