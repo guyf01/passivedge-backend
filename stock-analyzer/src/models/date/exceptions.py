@@ -1,7 +1,7 @@
 """Custom exceptions for MonthDate validation."""
 
 
-class MonthDateError(Exception):
+class MonthDateError(ValueError):
     """Base exception for MonthDate errors."""
     pass
 

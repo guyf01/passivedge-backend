@@ -1,11 +1,10 @@
 """AWS Lambda handler for stock analysis API using Lambda Powertools."""
 
-import json, os
+import os
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver, CORSConfig
 from aws_lambda_powertools.event_handler.exceptions import BadRequestError, NotFoundError, ServiceError
 
-from src.models.date import MonthDate, MonthPeriod
-from src.models.date.exceptions import MonthDateError, InvalidDateRangeError
+from src.schemas import ValidateRequest
 from src.services.stock_fetcher import MonthStockFetcher, NoDataForMonthError
 from src.services.cache import DynamoDBCache
 from src.services.aggregator import StockAggregator
@@ -21,7 +20,6 @@ app = APIGatewayRestResolver(
 )
 
 
-# Catch-all exception handler - logs all errors automatically
 @app.exception_handler(ServiceError)
 def log_service_errors(ex: ServiceError):
     logger.error(f"{ex.__class__.__name__}: {ex}")
@@ -44,47 +42,15 @@ def analyze():
         - start: Start month (YYYY-MM format)
         - end: End month (YYYY-MM format)
     """
-    # Validate request body
-    raw_body = app.current_event.body
-    if not raw_body:
-        raise BadRequestError("Missing request body")
+    try:
+        request = ValidateRequest(app.current_event.body)
+    except ValueError as e:
+        raise BadRequestError(str(e))
     
-    try:
-        body = app.current_event.json_body
-    except json.JSONDecodeError:
-        raise BadRequestError("Invalid JSON body")
-    
-    logger.info(f"Request: {body}")
-
-    if not isinstance(body, dict):
-        raise BadRequestError("Request body must be a JSON object")
-
-    # Validate required parameters
-    required_params = {'symbol', 'start', 'end'}
-    if not required_params.issubset(body):
-        missing = required_params.difference(body)
-        raise BadRequestError(f"Missing required parameters: {missing}")
-
-    # Parse dates
-    try:
-        start_date = MonthDate.from_str(body['start'])
-        end_date = MonthDate.from_str(body['end'])
-    except MonthDateError as e:
-        raise BadRequestError(f"Invalid date: {e}")
-
-    # Create period
-    try:
-        period = MonthPeriod(start_date, end_date)
-    except InvalidDateRangeError as e:
-        raise BadRequestError(f"Invalid date range: {e}")
-
-    # Check if stock exists
     fetcher = MonthStockFetcher()
-    symbol = body['symbol'].upper()
-    if not fetcher.exists(symbol):
-        raise NotFoundError(f"Symbol does not exist: {symbol}")
+    if not fetcher.exists(request.symbol):
+        raise NotFoundError(f"Symbol does not exist: {request.symbol}")
 
-    # Aggregate data
     aggregator = StockAggregator(
         fetcher=DynamoDBCache(
             table_name=os.environ['DYNAMODB_TABLE_NAME']
@@ -92,8 +58,8 @@ def analyze():
     )
     
     try:
-        logger.info(f"Analyzing '{symbol}' over {period}")
-        result = aggregator.aggregate(symbol, period)
+        logger.info(f"Analyzing '{request.symbol}' over {request.period}")
+        result = aggregator.aggregate(request.symbol, request.period)
     except NoDataForMonthError as e:
         raise NotFoundError(str(e))
 
