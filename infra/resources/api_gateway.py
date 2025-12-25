@@ -1,9 +1,10 @@
 """API Gateway construct for stock analysis API."""
 
 from aws_cdk import RemovalPolicy
-from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions
 from aws_cdk.aws_route53 import ARecord, RecordTarget
 from aws_cdk.aws_route53_targets import ApiGatewayDomain
+from aws_cdk.aws_certificatemanager import Certificate, CertificateValidation
+from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions
 from constructs import Construct
 
 from infra.app import workload_app
@@ -17,12 +18,20 @@ class StockAnalyzerApi(Construct):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
+        self.api_domain_name = f"api.{workload_app.route53_zone.domain_name}"
+
+        self.api_certificate = Certificate(
+            self, "ApiCertificate",
+            domain_name=self.api_domain_name,
+            validation=CertificateValidation.from_dns(workload_app.route53_zone.hosted_zone),
+        )
+
         self.api = RestApi(
             self, "StockAnalyzerApi",
             rest_api_name="PassivEdge Stock Analyzer",
             domain_name=DomainNameOptions(
-                domain_name=workload_app.route53_zone.domain_name,
-                certificate=workload_app.route53_zone.certificate,
+                domain_name=self.api_domain_name,
+                certificate=self.api_certificate,
             ),
             endpoint_configuration=EndpointConfiguration(
                 types=[EndpointType.REGIONAL]
@@ -42,8 +51,9 @@ class StockAnalyzerApi(Construct):
 
         # Route 53 ALIAS record pointing to API Gateway
         ARecord(
-            self, "AliasRecord",
+            self, "ApiAliasRecord",
             zone=workload_app.route53_zone.hosted_zone,
+            record_name="api",
             target=RecordTarget.from_alias(ApiGatewayDomain(self.api.domain_name)),
         )
 
