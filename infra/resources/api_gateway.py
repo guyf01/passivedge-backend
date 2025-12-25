@@ -1,7 +1,7 @@
 """API Gateway construct for stock analysis API."""
 
 from aws_cdk import RemovalPolicy
-from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, Cors, EndpointConfiguration, EndpointType, DomainNameOptions
+from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions
 from aws_cdk.aws_route53 import ARecord, RecordTarget
 from aws_cdk.aws_route53_targets import ApiGatewayDomain
 from constructs import Construct
@@ -28,11 +28,16 @@ class StockAnalyzerApi(Construct):
                 types=[EndpointType.REGIONAL]
             ),
             cloud_watch_role_removal_policy=RemovalPolicy.DESTROY,
-            default_cors_preflight_options={
-                "allow_origins": Cors.ALL_ORIGINS,
-                "allow_methods": ["POST", "OPTIONS"],
-                "allow_headers": ["Content-Type"],
-            },
+            disable_execute_api_endpoint=True,
+            deploy_options=StageOptions(
+                throttling_rate_limit=2,
+                throttling_burst_limit=5,
+            ),
+            default_cors_preflight_options=CorsOptions(
+                allow_origins=["https://passivedge.com"],
+                allow_methods=["POST", "OPTIONS"],
+                allow_headers=["Content-Type"],
+            ),
         )
 
         # Route 53 ALIAS record pointing passivedge.com to API Gateway
