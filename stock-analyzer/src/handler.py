@@ -53,7 +53,9 @@ def analyze():
 
     aggregator = StockAggregator(
         fetcher=DynamoDBCache(
-            table_name=os.environ['DYNAMODB_TABLE_NAME']
+            table_name=os.environ['DYNAMODB_TABLE_NAME'],
+            partition_key=os.environ['DYNAMODB_PK'],
+            sort_key=os.environ['DYNAMODB_SK'],
         )(fetcher.fetch)
     )
     

@@ -23,6 +23,8 @@ class StockAnalyzerFunction(Construct):
             timeout=Duration.seconds(30),
             environment={
                 "DYNAMODB_TABLE_NAME": workload_app.stock_cache_table.table.table_name,
+                "DYNAMODB_PK": workload_app.stock_cache_table.partition_key,
+                "DYNAMODB_SK": workload_app.stock_cache_table.sort_key,
                 "CORS_ORIGIN": f"https://{workload_app.route53_zone.domain_name}",
             },
         )
