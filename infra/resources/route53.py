@@ -6,14 +6,18 @@ from constructs import Construct
 
 
 class Route53Zone(Construct):
-    """
-    Route 53 hosted zone lookup and ALIAS record.
-    """
+    """Route 53 hosted zone lookup and ALIAS record."""
 
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
-        self.domain_name = "passivedge.com"
+        # Get domain from CDK context
+        self.domain_name = self.node.try_get_context("domain-name")
+        if not self.domain_name:
+            raise ValueError(
+                "Missing 'domain-name' context. "
+                "Add to cdk.context.json: {\"domain-name\": \"example.com\"}"
+            )
 
         # Look up existing hosted zone
         self.hosted_zone = HostedZone.from_lookup(

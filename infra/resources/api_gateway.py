@@ -34,13 +34,13 @@ class StockAnalyzerApi(Construct):
                 throttling_burst_limit=5,
             ),
             default_cors_preflight_options=CorsOptions(
-                allow_origins=["https://passivedge.com"],
+                allow_origins=[f"https://{workload_app.route53_zone.domain_name}"],
                 allow_methods=["POST", "OPTIONS"],
                 allow_headers=["Content-Type"],
             ),
         )
 
-        # Route 53 ALIAS record pointing passivedge.com to API Gateway
+        # Route 53 ALIAS record pointing to API Gateway
         ARecord(
             self, "AliasRecord",
             zone=workload_app.route53_zone.hosted_zone,
