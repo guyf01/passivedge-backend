@@ -42,7 +42,11 @@ class ApiError(Enum):
             'statusCode': self.status_code,
             'headers': {
                 'Content-Type': 'application/problem+json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': 'https://passivedge.com',
+                'X-Content-Type-Options': 'nosniff',
+                'X-Frame-Options': 'DENY',
+                'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+                'Cache-Control': 'no-store',
             },
             'body': json.dumps({
                 'type': self.error_type,

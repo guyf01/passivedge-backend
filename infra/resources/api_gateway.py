@@ -1,7 +1,7 @@
 """API Gateway construct for stock analysis API."""
 
 from aws_cdk import RemovalPolicy
-from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, Cors, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions
+from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions
 from aws_cdk.aws_route53 import ARecord, RecordTarget
 from aws_cdk.aws_route53_targets import ApiGatewayDomain
 from constructs import Construct
@@ -34,7 +34,7 @@ class StockAnalyzerApi(Construct):
                 throttling_burst_limit=5,
             ),
             default_cors_preflight_options=CorsOptions(
-                allow_origins=Cors.ALL_ORIGINS,
+                allow_origins=["https://passivedge.com"],
                 allow_methods=["POST", "OPTIONS"],
                 allow_headers=["Content-Type"],
             ),
