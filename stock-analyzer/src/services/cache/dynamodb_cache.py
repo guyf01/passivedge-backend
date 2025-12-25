@@ -20,8 +20,8 @@ class DynamoDBCache(BaseCache):
     def __init__(
         self, 
         table_name: str,
-        partition_key: str = 'symbol',
-        sort_key: str = 'date'
+        partition_key: str,
+        sort_key: str
     ):
         """
         Initialize DynamoDB cache.

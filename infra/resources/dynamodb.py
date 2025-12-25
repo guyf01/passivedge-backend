@@ -13,15 +13,19 @@ class StockCacheTable(Construct):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
+        self.partition_key = "symbol"
+
+        self.sort_key = "date"
+
         self.table = Table(
             self, "StockCacheTable",
             table_name="stock-cache",
             partition_key=Attribute(
-                name="symbol",
+                name=self.partition_key,
                 type=AttributeType.STRING
             ),
             sort_key=Attribute(
-                name="date",
+                name=self.sort_key,
                 type=AttributeType.STRING
             ),
             table_class=TableClass.STANDARD_INFREQUENT_ACCESS,
