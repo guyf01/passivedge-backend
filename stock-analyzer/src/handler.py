@@ -16,7 +16,7 @@ logger = get_logger('handler')
 
 app = APIGatewayRestResolver(
     cors=CORSConfig(
-        allow_origin="https://passivedge.com"
+        allow_origin=os.environ.get('CORS_ORIGIN')
     )
 )
 

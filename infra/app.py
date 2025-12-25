@@ -24,11 +24,11 @@ class WorkloadApp():
             )
         ) 
 
+        self.route53_zone = Route53Zone(self.stack, "Route53Zone")
+
         self.stock_cache_table = StockCacheTable(self.stack, "StockCacheTable")
 
         self.stock_analysis_function = StockAnalyzerFunction(self.stack, "StockAnalyzerFunction")
-
-        self.route53_zone = Route53Zone(self.stack, "Route53Zone")
 
         self.stock_analyzer_api = StockAnalyzerApi(self.stack, "StockAnalyzerApi")
 
