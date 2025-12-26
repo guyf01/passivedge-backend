@@ -61,8 +61,8 @@ class MonthPeriod:
     def to_dict(self) -> dict[str, str]:
         """Convert to JSON-serializable dictionary."""
         return {
-            "start": self.start.to_dict(),
-            "end": self.end.to_dict()
+            "start": str(self.start),
+            "end": str(self.end)
         }
 
 
@@ -70,8 +70,8 @@ class MonthPeriod:
     def from_dict(cls, data: dict[str, str]) -> MonthPeriod:
         """Create a MonthPeriod from a dictionary."""
         return cls(
-            start=MonthDate.from_dict(data["start"]),
-            end=MonthDate.from_dict(data["end"])
+            start=MonthDate.from_str(data["start"]),
+            end=MonthDate.from_str(data["end"])
         )
 
 
