@@ -8,6 +8,9 @@ from .month_date import MonthDate
 from .exceptions import InvalidDateRangeError, InvalidDateError
 
 
+MAX_PERIOD_MONTHS = 60
+
+
 @dataclass(frozen=True)
 class MonthPeriod:
     """
@@ -36,6 +39,12 @@ class MonthPeriod:
         except InvalidDateError:
             raise InvalidDateRangeError(
                 f"End date {self.end} month cannot be current month"
+            )
+        
+        total_months = (self.end.year - self.start.year) * 12 + (self.end.month - self.start.month)
+        if total_months > MAX_PERIOD_MONTHS:
+            raise InvalidDateRangeError(
+                f"Period cannot exceed {MAX_PERIOD_MONTHS / 12} years({MAX_PERIOD_MONTHS} months). Current period: {total_months} months"
             )
 
 
