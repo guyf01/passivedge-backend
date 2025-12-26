@@ -65,28 +65,6 @@ class MonthDate:
         return datetime(self.year, self.month, 1)
 
 
-    def to_dict(self) -> dict[str, str]:
-        """Convert to JSON-serializable dictionary."""
-        return {
-            "year": str(self.year),
-            "month": str(self.month)
-        }
-
-
-    @staticmethod
-    def from_dict(data: dict[str, str]) -> MonthDate:
-        """Convert from dictionary."""
-        try:
-            year = int(data['year'])
-            month = int(data['month'])
-        except KeyError as e:
-            raise InvalidDateError(f"Missing key: {e}")
-        except ValueError as e:
-            raise InvalidDateError(f"Invalid value: {e}")
-
-        return MonthDate(year=year, month=month)
-
-
     def __str__(self) -> str:
         """Convert to string in format 'YYYY-MM'."""
         return f"{self.year}-{self.month:02d}"
