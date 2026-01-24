@@ -18,7 +18,9 @@ class StockAnalyzerApi(Construct):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
-        self.api_domain_name = f"api.{workload_app.route53_zone.domain_name}"
+        self.record_name = "api"
+
+        self.api_domain_name = f"{self.record_name}.{workload_app.route53_zone.domain_name}"
 
         self.api_certificate = Certificate(
             self, "ApiCertificate",
@@ -43,7 +45,7 @@ class StockAnalyzerApi(Construct):
                 throttling_burst_limit=5,
             ),
             default_cors_preflight_options=CorsOptions(
-                allow_origins=[f"https://{workload_app.route53_zone.domain_name}"],
+                allow_origins=[workload_app.stock_analysis_function.cors_origin],
                 allow_methods=["POST", "OPTIONS"],
                 allow_headers=["Content-Type"],
             ),
@@ -53,7 +55,7 @@ class StockAnalyzerApi(Construct):
         ARecord(
             self, "ApiAliasRecord",
             zone=workload_app.route53_zone.hosted_zone,
-            record_name="api",
+            record_name=self.record_name,
             target=RecordTarget.from_alias(ApiGatewayDomain(self.api.domain_name)),
         )
 
