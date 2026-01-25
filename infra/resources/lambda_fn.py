@@ -15,6 +15,8 @@ class StockAnalyzerFunction(Construct):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
+        self.cors_origin = f"https://{workload_app.route53_zone.domain_name}"
+
         self.function = DockerImageFunction(
             self, "StockAnalyzerFunction",
             function_name="stock-analyzer",
@@ -25,7 +27,7 @@ class StockAnalyzerFunction(Construct):
                 "DYNAMODB_TABLE_NAME": workload_app.stock_cache_table.table.table_name,
                 "DYNAMODB_PK": workload_app.stock_cache_table.partition_key,
                 "DYNAMODB_SK": workload_app.stock_cache_table.sort_key,
-                "CORS_ORIGIN": f"https://{workload_app.route53_zone.domain_name}",
+                "CORS_ORIGIN": self.cors_origin,
             },
         )
 
