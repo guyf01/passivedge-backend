@@ -1,7 +1,5 @@
 """Stock data fetcher service using Yahoo Finance."""
 
-import yfinance as yf
-
 from src.models.date import MonthDate, MonthPeriod
 from src.models.analysis import DayScore, StockAnalysis
 from src.services.stock_fetcher.exceptions import NoDataForMonthError
@@ -21,10 +19,11 @@ class MonthStockFetcher:
     def exists(symbol: str) -> bool:
         """
         Check if a stock symbol exists.
-        
+
         :param symbol: Stock ticker symbol (e.g., 'AAPL')
         :return: True if stock exists, False otherwise
         """
+        import yfinance as yf
         ticker = yf.Ticker(symbol)
         # Check if ticker has valid info (fast check)
         return ticker.info.get('regularMarketPrice') is not None
@@ -39,8 +38,9 @@ class MonthStockFetcher:
         :return: StockAnalysis with daily scores
         :raises NoDataForMonthError: If no data available for the month
         """
+        import yfinance as yf
         logger.info(f"Fetching data for '{symbol}' '{month}'")
-        
+
         df = yf.Ticker(symbol).history(
             start=month.to_datetime(),
             end=month.next_month().to_datetime()
