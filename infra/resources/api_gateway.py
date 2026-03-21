@@ -4,7 +4,8 @@ from aws_cdk import RemovalPolicy
 from aws_cdk.aws_route53 import ARecord, RecordTarget
 from aws_cdk.aws_route53_targets import ApiGatewayDomain
 from aws_cdk.aws_certificatemanager import Certificate, CertificateValidation
-from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions
+from aws_cdk.aws_apigateway import RestApi, LambdaIntegration, EndpointConfiguration, EndpointType, DomainNameOptions, StageOptions, CorsOptions, AccessLogFormat, LogGroupLogDestination
+from aws_cdk.aws_logs import LogGroup, RetentionDays
 from constructs import Construct
 
 from infra.app import workload_app
@@ -43,6 +44,24 @@ class StockAnalyzerApi(Construct):
             deploy_options=StageOptions(
                 throttling_rate_limit=2,
                 throttling_burst_limit=5,
+                access_log_destination=LogGroupLogDestination(
+                    LogGroup(
+                        self, "ApiAccessLogs",
+                        retention=RetentionDays.ONE_MONTH,
+                        removal_policy=RemovalPolicy.DESTROY,
+                    )
+                ),
+                access_log_format=AccessLogFormat.json_with_standard_fields(
+                    caller=False,
+                    http_method=True,
+                    ip=True,
+                    protocol=False,
+                    request_time=True,
+                    resource_path=True,
+                    response_length=True,
+                    status=True,
+                    user=False,
+                ),
             ),
             default_cors_preflight_options=CorsOptions(
                 allow_origins=[workload_app.stock_analysis_function.cors_origin],
