@@ -29,6 +29,12 @@ class StockAnalyzerApi(Construct):
             validation=CertificateValidation.from_dns(workload_app.route53_zone.hosted_zone),
         )
 
+        self.access_log_group = LogGroup(
+            self, "ApiAccessLogs",
+            retention=RetentionDays.ONE_MONTH,
+            removal_policy=RemovalPolicy.DESTROY,
+        )
+
         self.api = RestApi(
             self, "StockAnalyzerApi",
             rest_api_name="PassivEdge Stock Analyzer",
@@ -44,13 +50,7 @@ class StockAnalyzerApi(Construct):
             deploy_options=StageOptions(
                 throttling_rate_limit=2,
                 throttling_burst_limit=5,
-                access_log_destination=LogGroupLogDestination(
-                    LogGroup(
-                        self, "ApiAccessLogs",
-                        retention=RetentionDays.ONE_MONTH,
-                        removal_policy=RemovalPolicy.DESTROY,
-                    )
-                ),
+                access_log_destination=LogGroupLogDestination(self.access_log_group),
                 access_log_format=AccessLogFormat.json_with_standard_fields(
                     caller=False,
                     http_method=True,
@@ -79,8 +79,8 @@ class StockAnalyzerApi(Construct):
         )
 
         # /analyze endpoint
-        analyze = self.api.root.add_resource("analyze")
-        analyze.add_method(
+        self.analyze_resource = self.api.root.add_resource("analyze")
+        self.analyze_resource.add_method(
             "POST",
             LambdaIntegration(workload_app.stock_analysis_function.function, proxy=True),
         )
