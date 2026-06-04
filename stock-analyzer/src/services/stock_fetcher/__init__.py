@@ -1,2 +1,3 @@
 from .exceptions import StockFetcherError, NoDataForMonthError
-from .stock_fetcher import MonthStockFetcher
+from .base_fetcher import StockFetcher
+from .yahoo_stock_fetcher import YahooStockFetcher

@@ -5,8 +5,8 @@ from aws_lambda_powertools.event_handler import APIGatewayRestResolver, CORSConf
 from aws_lambda_powertools.event_handler.exceptions import BadRequestError, NotFoundError, ServiceError
 
 from src.schemas import ValidateRequest
-from src.services.stock_fetcher import MonthStockFetcher, NoDataForMonthError
-from src.services.cache import DynamoDBCache
+from src.services.stock_fetcher import YahooStockFetcher, NoDataForMonthError
+from src.services.cache import CachingStockFetcher, DynamoDBStorage
 from src.services.aggregator import StockAggregator
 from src import get_logger
 
@@ -47,16 +47,19 @@ def analyze():
     except ValueError as e:
         raise BadRequestError(str(e))
     
-    fetcher = MonthStockFetcher()
-    if not fetcher.exists(request.symbol):
+    fetcher = YahooStockFetcher()
+    if not fetcher.is_valid_symbol(request.symbol):
         raise NotFoundError(f"Symbol does not exist: {request.symbol}")
 
     aggregator = StockAggregator(
-        fetcher=DynamoDBCache(
-            table_name=os.environ['DYNAMODB_TABLE_NAME'],
-            partition_key=os.environ['DYNAMODB_PK'],
-            sort_key=os.environ['DYNAMODB_SK'],
-        )(fetcher.fetch)
+        fetcher=CachingStockFetcher(
+            inner=fetcher,
+            storage=DynamoDBStorage(
+                table_name=os.environ['DYNAMODB_TABLE_NAME'],
+                partition_key=os.environ['DYNAMODB_PK'],
+                sort_key=os.environ['DYNAMODB_SK'],
+            ),
+        )
     )
     
     try:
