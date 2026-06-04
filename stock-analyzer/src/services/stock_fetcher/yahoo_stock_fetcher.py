@@ -1,5 +1,6 @@
 """Stock data fetcher service using Yahoo Finance."""
 
+from .base_fetcher import StockFetcher
 from src.models.date import MonthDate, MonthPeriod
 from src.models.analysis import DayScore, StockAnalysis
 from src.services.stock_fetcher.exceptions import NoDataForMonthError
@@ -9,23 +10,15 @@ from src import get_logger
 logger = get_logger('fetcher')
 
 
-class MonthStockFetcher:
+class YahooStockFetcher(StockFetcher):
     """
     Fetches stock data from Yahoo Finance for a single month.
     
     Calculates avg_price_diff = ((day_close - month_avg) / month_avg) * 100
     """
-    @staticmethod
-    def exists(symbol: str) -> bool:
-        """
-        Check if a stock symbol exists.
-
-        :param symbol: Stock ticker symbol (e.g., 'AAPL')
-        :return: True if stock exists, False otherwise
-        """
+    def is_valid_symbol(self, symbol: str) -> bool:
         import yfinance as yf
         ticker = yf.Ticker(symbol)
-        # Check if ticker has valid info (fast check)
         return ticker.info.get('regularMarketPrice') is not None
 
 

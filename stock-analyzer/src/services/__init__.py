@@ -1,3 +1,3 @@
-from .stock_fetcher import MonthStockFetcher, NoDataForMonthError
-from .cache import BaseCache, DynamoDBCache
+from .stock_fetcher import StockFetcher, YahooStockFetcher, NoDataForMonthError
+from .cache import CacheStorage, DynamoDBStorage, CachingStockFetcher
 from .aggregator import StockAggregator
