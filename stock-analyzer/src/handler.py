@@ -59,7 +59,8 @@ def analyze():
                 partition_key=os.environ['DYNAMODB_PK'],
                 sort_key=os.environ['DYNAMODB_SK'],
             ),
-        )
+        ),
+        max_workers=int(os.environ['FETCH_MAX_WORKERS']),
     )
     
     try:
