@@ -28,6 +28,7 @@ class StockAnalyzerFunction(Construct):
                 "DYNAMODB_PK": workload_app.stock_cache_table.partition_key,
                 "DYNAMODB_SK": workload_app.stock_cache_table.sort_key,
                 "CORS_ORIGIN": self.cors_origin,
+                "FETCH_MAX_WORKERS": "5",
             },
         )
 
