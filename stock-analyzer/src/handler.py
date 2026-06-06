@@ -4,7 +4,7 @@ import os
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver, CORSConfig
 from aws_lambda_powertools.event_handler.exceptions import BadRequestError, NotFoundError, ServiceError
 
-from src.schemas import ValidateRequest
+from src.parsing import parse_analyze_request
 from src.services.stock_fetcher import YahooStockFetcher, NoDataForMonthError
 from src.services.cache import CachingStockFetcher, DynamoDBStorage
 from src.services.aggregator import StockAggregator
@@ -43,7 +43,7 @@ def analyze():
         - end: End month (YYYY-MM format)
     """
     try:
-        request = ValidateRequest(app.current_event.body)
+        request = parse_analyze_request(app.current_event.body)
     except ValueError as e:
         raise BadRequestError(str(e))
     
