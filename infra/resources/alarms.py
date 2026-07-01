@@ -97,11 +97,21 @@ class ApiGatewayAlarms(Construct):
         )
         self.security_probe_alarm.add_alarm_action(alarm_action)
 
+        analyze_traffic_filter = MetricFilter(
+            self, "AnalyzeTrafficFilter",
+            log_group=workload_app.stock_analyzer_api.access_log_group,
+            filter_pattern=FilterPattern.string_value("$.resourcePath", "=", workload_app.stock_analyzer_api.analyze_resource.path),
+            metric_namespace="PassivEdge/ApiGateway",
+            metric_name="AnalyzeTraffic",
+            default_value=0,
+        )
+
         self.high_traffic_alarm = Alarm(
             self, "HighTrafficAlarm",
             alarm_name="stock-analyzer-high-traffic",
-            metric=workload_app.stock_analyzer_api.api.metric_count(
+            metric=analyze_traffic_filter.metric(
                 period=Duration.minutes(1),
+                statistic="Sum",
             ),
             threshold=100,
             evaluation_periods=1,
