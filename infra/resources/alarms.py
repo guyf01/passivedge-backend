@@ -30,7 +30,7 @@ class ApiGatewayAlarms(Construct):
             topic_name="stock-analyzer-alarms",
         )
 
-        alarm_topic.add_subscription(EmailSubscription(alert_email))
+        alarm_topic.add_subscription(EmailSubscription(alert_email, json=True))
 
         alarm_action = SnsAction(alarm_topic)
 
