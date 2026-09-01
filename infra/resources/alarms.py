@@ -95,7 +95,32 @@ class ApiGatewayAlarms(Construct):
             comparison_operator=ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             treat_missing_data=TreatMissingData.NOT_BREACHING,
         )
-        self.security_probe_alarm.add_alarm_action(alarm_action)
+
+        probe_breach_filter = MetricFilter(
+            self, "ProbeBreachFilter",
+            log_group=workload_app.stock_analyzer_api.access_log_group,
+            filter_pattern=FilterPattern.all(
+                FilterPattern.string_value("$.resourcePath", "!=", workload_app.stock_analyzer_api.analyze_resource.path),
+                FilterPattern.number_value("$.status", "<", 400),
+            ),
+            metric_namespace="PassivEdge/ApiGateway",
+            metric_name="ProbeBreaches",
+            default_value=0,
+        )
+
+        self.probe_breach_alarm = Alarm(
+            self, "ProbeBreachAlarm",
+            alarm_name="stock-analyzer-probe-breach",
+            metric=probe_breach_filter.metric(
+                period=Duration.minutes(1),
+                statistic="Sum",
+            ),
+            threshold=1,
+            evaluation_periods=1,
+            comparison_operator=ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+            treat_missing_data=TreatMissingData.NOT_BREACHING,
+        )
+        self.probe_breach_alarm.add_alarm_action(alarm_action)
 
         analyze_traffic_filter = MetricFilter(
             self, "AnalyzeTrafficFilter",
