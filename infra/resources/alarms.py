@@ -34,6 +34,10 @@ class ApiGatewayAlarms(Construct):
 
         alarm_action = SnsAction(alarm_topic)
 
+        not_real_path_filter = FilterPattern.all(
+            *(FilterPattern.string_value("$.resourcePath", "!=", path) for path in workload_app.stock_analyzer_api.real_paths)
+        )
+
         self.server_error_alarm = Alarm(
             self, "ServerErrorAlarm",
             alarm_name="stock-analyzer-5xx-errors",
@@ -77,7 +81,7 @@ class ApiGatewayAlarms(Construct):
         security_probe_filter = MetricFilter(
             self, "SecurityProbeFilter",
             log_group=workload_app.stock_analyzer_api.access_log_group,
-            filter_pattern=FilterPattern.string_value("$.resourcePath", "!=", workload_app.stock_analyzer_api.analyze_resource.path),
+            filter_pattern=not_real_path_filter,
             metric_namespace="PassivEdge/ApiGateway",
             metric_name="SecurityProbes",
             default_value=0,
@@ -100,7 +104,7 @@ class ApiGatewayAlarms(Construct):
             self, "ProbeBreachFilter",
             log_group=workload_app.stock_analyzer_api.access_log_group,
             filter_pattern=FilterPattern.all(
-                FilterPattern.string_value("$.resourcePath", "!=", workload_app.stock_analyzer_api.analyze_resource.path),
+                not_real_path_filter,
                 FilterPattern.number_value("$.status", "<", 400),
             ),
             metric_namespace="PassivEdge/ApiGateway",
@@ -144,3 +148,16 @@ class ApiGatewayAlarms(Construct):
             treat_missing_data=TreatMissingData.NOT_BREACHING,
         )
         self.high_traffic_alarm.add_alarm_action(alarm_action)
+
+        self.health_check_alarm = Alarm(
+            self, "HealthCheckAlarm",
+            alarm_name="stock-analyzer-health-check",
+            metric=workload_app.stock_analyzer_health_check_canary.canary.metric_success_percent(
+                period=Duration.minutes(5),
+            ),
+            threshold=100,
+            evaluation_periods=1,
+            comparison_operator=ComparisonOperator.LESS_THAN_THRESHOLD,
+            treat_missing_data=TreatMissingData.NOT_BREACHING,
+        )
+        self.health_check_alarm.add_alarm_action(alarm_action)

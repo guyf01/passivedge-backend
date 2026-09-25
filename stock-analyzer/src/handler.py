@@ -32,6 +32,12 @@ def log_unhandled_errors(ex: Exception):
     raise
 
 
+@app.get("/analyze/health")
+def health():
+    """Shallow health check for the synthetic canary: proves a request reaches this Lambda and returns."""
+    return {"status": "ok"}
+
+
 @app.post("/analyze")
 def analyze():
     """

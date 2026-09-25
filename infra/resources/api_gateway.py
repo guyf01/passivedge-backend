@@ -16,6 +16,11 @@ class StockAnalyzerApi(Construct):
     REST API Gateway for stock analysis.
     """
 
+    @property
+    def real_paths(self) -> list[str]:
+        """Paths with real (non-CORS) methods."""
+        return sorted({m.resource.path for m in self.api.methods if m.http_method != "OPTIONS"})
+
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
@@ -82,5 +87,12 @@ class StockAnalyzerApi(Construct):
         self.analyze_resource = self.api.root.add_resource("analyze")
         self.analyze_resource.add_method(
             "POST",
+            LambdaIntegration(workload_app.stock_analysis_function.function, proxy=True),
+        )
+
+        # /analyze/health endpoint (synthetic canary target)
+        self.analyze_health_resource = self.analyze_resource.add_resource("health")
+        self.analyze_health_resource.add_method(
+            "GET",
             LambdaIntegration(workload_app.stock_analysis_function.function, proxy=True),
         )

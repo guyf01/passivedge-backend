@@ -13,7 +13,7 @@ class WorkloadApp():
     
 
     def create_stack(self):
-        from infra.resources import StockCacheTable, StockAnalyzerFunction, StockAnalyzerApi, Route53Zone, ApiGatewayAlarms
+        from infra.resources import StockCacheTable, StockAnalyzerFunction, StockAnalyzerApi, Route53Zone, HealthCheckCanary, ApiGatewayAlarms
 
         # Need explicit env for Route 53 hosted zone lookup
         self.stack = Stack(
@@ -31,6 +31,8 @@ class WorkloadApp():
         self.stock_analysis_function = StockAnalyzerFunction(self.stack, "StockAnalyzerFunction")
 
         self.stock_analyzer_api = StockAnalyzerApi(self.stack, "StockAnalyzerApi")
+
+        self.stock_analyzer_health_check_canary = HealthCheckCanary(self.stack, "HealthCheckCanary")
 
         self.alarms = ApiGatewayAlarms(self.stack, "ApiGatewayAlarms")
 
